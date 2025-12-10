@@ -6,6 +6,7 @@ import Introduction from './components/Introduction';
 import DataDictionary from './components/DataDictionary';
 import DescriptiveAnalysis from './components/DescriptiveAnalysis';
 import Models from './components/Models';
+import PredictiveApp from './components/PredictiveApp';
 import { Menu } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -24,6 +25,8 @@ const App: React.FC = () => {
         return <DescriptiveAnalysis />;
       case Section.MODELS:
         return <Models />;
+      case Section.PREDICTIVE_APP:
+        return <PredictiveApp />;
       default:
         return <Cover />;
     }
@@ -68,7 +71,7 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto w-full pt-16 lg:pt-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full">
           {renderContent()}
           
           <footer className="mt-16 pt-8 border-t border-slate-200 text-center text-sm text-slate-500 pb-8">

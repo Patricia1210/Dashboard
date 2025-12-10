@@ -1,6 +1,6 @@
 import React from 'react';
 import { Section } from '../types';
-import { Home, FileText, Database, BarChart2, Download, Share2, BrainCircuit, Cpu } from 'lucide-react';
+import { Home, FileText, Database, BarChart2, Download, Share2, BrainCircuit, Cpu, Calculator } from 'lucide-react';
 
 interface SidebarProps {
   activeSection: Section;
@@ -14,6 +14,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate }) => {
     { id: Section.DATA_DICTIONARY, icon: Database, label: 'Diccionario de Datos' },
     { id: Section.DESCRIPTIVE_ANALYSIS, icon: BarChart2, label: 'Análisis Descriptivo' },
     { id: Section.MODELS, icon: Cpu, label: 'Modelos Predictivos' },
+    { id: Section.PREDICTIVE_APP, icon: Calculator, label: 'Simulador Interactivo' },
   ];
 
   const currentIndex = menuItems.findIndex(item => item.id === activeSection) + 1;

@@ -3,7 +3,8 @@ export enum Section {
   INTRODUCTION = 'Introducción',
   DATA_DICTIONARY = 'Diccionario de Datos',
   DESCRIPTIVE_ANALYSIS = 'Análisis Descriptivo',
-  MODELS = 'Modelos Predictivos'
+  MODELS = 'Modelos Predictivos',
+  PREDICTIVE_APP = 'Simulador Interactivo'
 }
 
 export interface VariableDefinition {
