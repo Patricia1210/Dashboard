@@ -1,77 +1,129 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  LineChart, Line, Legend
+  Legend, Cell
 } from 'recharts';
-import { ModelMetric } from '../types';
-import { Cpu, CheckCircle2, AlertOctagon } from 'lucide-react';
+import { Cpu, CheckCircle2, AlertTriangle, FileBarChart, BrainCircuit } from 'lucide-react';
 
 const Models: React.FC = () => {
-  // Mock Data - Replace with your actual model results
-  const metricsData: ModelMetric[] = [
-    { model: 'Regresión Logística', accuracy: 0.78, recall: 0.72, f1: 0.75, auc: 0.82 },
-    { model: 'Random Forest', accuracy: 0.85, recall: 0.80, f1: 0.82, auc: 0.89 },
-    { model: 'SVM', accuracy: 0.81, recall: 0.76, f1: 0.78, auc: 0.85 },
+  // Importación segura de imágenes (para cuando las subas)
+  const rocUrl = new URL('../curvas_roc_optimizados.png', import.meta.url).href;
+  const shapUrl = new URL('../shap_beeswarm_rf.png', import.meta.url).href;
+  const prUrl = new URL('../curvas_pr_optimizados.png', import.meta.url).href;
+
+  const [imgError, setImgError] = useState({ roc: false, shap: false, pr: false });
+
+  // DATOS REALES (Basados en tu Tabla 23 y Gráfico 1)
+  const performanceData = [
+    { model: 'Random Forest', auc: 0.751, f1_class1: 0.28, accuracy: 0.784 },
+    { model: 'Gradient Boosting', auc: 0.720, f1_class1: 0.34, accuracy: 0.736 },
+    { model: 'Regresión Logística', auc: 0.709, f1_class1: 0.38, accuracy: 0.712 },
   ];
 
-  const featureImportance = [
-    { feature: 'Glucosa', importance: 0.35 },
-    { feature: 'Edad', importance: 0.22 },
-    { feature: 'IMC', importance: 0.18 },
-    { feature: 'P. Sistólica', importance: 0.12 },
-    { feature: 'C. Cintura', importance: 0.08 },
-    { feature: 'Antecedentes', importance: 0.05 },
-  ];
-
-  // Mock ROC Curve data
-  const rocData = [
-    { fpr: 0, tpr_rf: 0, tpr_lr: 0, tpr_svm: 0 },
-    { fpr: 0.1, tpr_rf: 0.5, tpr_lr: 0.4, tpr_svm: 0.45 },
-    { fpr: 0.2, tpr_rf: 0.7, tpr_lr: 0.6, tpr_svm: 0.65 },
-    { fpr: 0.3, tpr_rf: 0.85, tpr_lr: 0.75, tpr_svm: 0.78 },
-    { fpr: 0.5, tpr_rf: 0.92, tpr_lr: 0.85, tpr_svm: 0.88 },
-    { fpr: 0.8, tpr_rf: 0.97, tpr_lr: 0.94, tpr_svm: 0.95 },
-    { fpr: 1, tpr_rf: 1, tpr_lr: 1, tpr_svm: 1 },
+  // Datos para la tabla detallada (Tabla 23)
+  const detailedMetrics = [
+    { 
+      model: 'Gradient Boosting (Optimizado)', 
+      auc: 0.72, 
+      acc: 0.736, 
+      f1: 0.34, 
+      comment: 'Mejor equilibrio precisión-recall, buen AUC en validación.' 
+    },
+    { 
+      model: 'Random Forest (Optimizado)', 
+      auc: 0.75, 
+      acc: 0.784, 
+      f1: 0.28, 
+      comment: 'Mayor AUC en prueba (0.751). Modelo más robusto y estable.' 
+    },
+    { 
+      model: 'Regresión Logística', 
+      auc: 0.71, 
+      acc: 0.712, 
+      f1: 0.38, 
+      comment: 'Mejor F1 y Recall para la clase positiva (detecta más casos).' 
+    },
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in pb-12">
-      <header className="mb-8">
+    <div className="space-y-12 animate-fade-in pb-12">
+      <header className="mb-8 border-b border-slate-200 pb-6">
         <h1 className="text-3xl font-bold text-slate-900">Modelos Predictivos</h1>
-        <p className="text-slate-500 mt-2 text-lg">Evaluación y comparación de algoritmos de Machine Learning.</p>
+        <p className="text-slate-500 mt-2 text-lg">Evaluación de algoritmos tras optimización bayesiana y balanceo SMOTE.</p>
       </header>
 
-      {/* Metrics Comparison Table */}
-      <section className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-          <div className="flex items-center space-x-2">
-            <Cpu className="text-blue-600" />
-            <h2 className="font-bold text-slate-800">4.1 Métricas de Desempeño</h2>
+      {/* 1. RESUMEN DEL GANADOR */}
+      <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-2xl p-8 shadow-lg">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <div className="flex items-center space-x-2 mb-2 text-emerald-400">
+              <CheckCircle2 size={24} />
+              <span className="font-bold tracking-wider uppercase text-sm">Modelo Seleccionado</span>
+            </div>
+            <h2 className="text-3xl font-bold mb-2">Random Forest</h2>
+            <p className="text-slate-300 max-w-2xl">
+              Seleccionado por presentar el mayor <strong>AUC-ROC (0.751)</strong>, demostrando la mejor capacidad 
+              global para distinguir entre pacientes sanos y diabéticos, manteniendo una alta estabilidad (Accuracy 78.4%).
+            </p>
           </div>
-          <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded">Test Set (20%)</span>
+          <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20 min-w-[200px] text-center">
+            <p className="text-sm text-slate-400 uppercase tracking-widest mb-1">AUC-ROC</p>
+            <p className="text-4xl font-bold text-white">0.751</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. GRÁFICO COMPARATIVO (Recreación Interactiva) */}
+      <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div className="flex items-center space-x-3 mb-6">
+          <FileBarChart className="text-blue-600" />
+          <h3 className="text-xl font-bold text-slate-800">Comparativa de Desempeño Global</h3>
+        </div>
+        <div className="h-80 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={performanceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="model" tick={{fill: '#64748b', fontSize: 13, fontWeight: 500}} />
+              <YAxis tick={{fill: '#64748b'}} domain={[0, 1]} />
+              <Tooltip 
+                cursor={{fill: '#f8fafc'}}
+                contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+              />
+              <Legend verticalAlign="top" height={36}/>
+              <Bar dataKey="auc" name="AUC-ROC" fill="#1e40af" radius={[4, 4, 0, 0]} barSize={50} />
+              <Bar dataKey="f1_class1" name="F1 (Clase 1 - Diabetes)" fill="#f59e0b" radius={[4, 4, 0, 0]} barSize={50} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-center text-sm text-slate-500 mt-4 italic">
+          Nota: Aunque Regresión Logística tiene mejor F1 para la clase 1, sacrifica demasiada precisión global.
+        </p>
+      </section>
+
+      {/* 3. TABLA DETALLADA (Tabla 23) */}
+      <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 bg-slate-50">
+          <h3 className="font-bold text-slate-800">Resultados tras Optimización Bayesiana</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
+              <tr className="bg-white border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
                 <th className="px-6 py-4">Modelo</th>
-                <th className="px-6 py-4">Accuracy</th>
-                <th className="px-6 py-4">Recall</th>
-                <th className="px-6 py-4">F1-Score</th>
                 <th className="px-6 py-4">AUC-ROC</th>
+                <th className="px-6 py-4">Accuracy</th>
+                <th className="px-6 py-4">F1 (Clase 1)</th>
+                <th className="px-6 py-4">Observación Principal</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {metricsData.map((m, idx) => (
-                <tr key={idx} className={m.model === 'Random Forest' ? 'bg-blue-50/50' : ''}>
-                  <td className="px-6 py-4 font-bold text-slate-800">
-                    {m.model}
-                    {m.model === 'Random Forest' && <span className="ml-2 text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">Mejor</span>}
-                  </td>
-                  <td className="px-6 py-4 text-slate-600">{m.accuracy}</td>
-                  <td className="px-6 py-4 text-slate-600">{m.recall}</td>
+              {detailedMetrics.map((m, idx) => (
+                <tr key={idx} className={m.model.includes('Random Forest') ? 'bg-blue-50/30' : 'hover:bg-slate-50'}>
+                  <td className="px-6 py-4 font-semibold text-slate-800">{m.model}</td>
+                  <td className="px-6 py-4 font-mono text-blue-700 font-bold">{m.auc}</td>
+                  <td className="px-6 py-4 text-slate-600">{m.acc}</td>
                   <td className="px-6 py-4 text-slate-600">{m.f1}</td>
-                  <td className="px-6 py-4 font-mono text-blue-600">{m.auc}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 italic">{m.comment}</td>
                 </tr>
               ))}
             </tbody>
@@ -79,82 +131,94 @@ const Models: React.FC = () => {
         </div>
       </section>
 
+      {/* 4. IMÁGENES CIENTÍFICAS (ROC y SHAP) */}
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* ROC Curves */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h3 className="font-bold text-slate-800 mb-6">4.2 Curvas ROC Comparativas</h3>
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={rocData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="fpr" type="number" label={{ value: 'False Positive Rate', position: 'insideBottom', offset: -5 }} />
-                <YAxis label={{ value: 'True Positive Rate', angle: -90, position: 'insideLeft' }} />
-                <Tooltip />
-                <Legend verticalAlign="top" height={36} />
-                <Line type="monotone" dataKey="tpr_rf" name="Random Forest" stroke="#10b981" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="tpr_lr" name="Reg. Logística" stroke="#6366f1" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="tpr_svm" name="SVM" stroke="#f59e0b" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="fpr" name="Referencia" stroke="#cbd5e1" strokeDasharray="5 5" dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
+        
+        {/* Curvas ROC */}
+        <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <h3 className="font-bold text-slate-800 mb-4">Curvas ROC - Modelos Optimizados</h3>
+          <div className="bg-slate-50 rounded-lg overflow-hidden border border-slate-100 flex items-center justify-center min-h-[350px]">
+            {!imgError.roc ? (
+              <img 
+                src={rocUrl} 
+                alt="Curvas ROC"
+                className="max-w-full h-auto object-contain"
+                onError={() => setImgError(prev => ({...prev, roc: true}))}
+              />
+            ) : (
+              <div className="text-center p-8 text-slate-400">
+                <p>⚠️ Sube la imagen: <code>curvas_roc_optimizados.png</code></p>
+              </div>
+            )}
           </div>
         </section>
 
-        {/* Feature Importance */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h3 className="font-bold text-slate-800 mb-6">4.3 Importancia de Variables (SHAP)</h3>
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={featureImportance} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e2e8f0" />
-                <XAxis type="number" />
-                <YAxis dataKey="feature" type="category" width={80} tick={{fontSize: 12}} />
-                <Tooltip cursor={{fill: '#f1f5f9'}} />
-                <Bar dataKey="importance" fill="#3b82f6" radius={[0, 4, 4, 0]} name="Importancia Relativa" />
-              </BarChart>
-            </ResponsiveContainer>
+        {/* Curvas PR */}
+        <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <h3 className="font-bold text-slate-800 mb-4">Curvas Precision-Recall</h3>
+          <div className="bg-slate-50 rounded-lg overflow-hidden border border-slate-100 flex items-center justify-center min-h-[350px]">
+             {!imgError.pr ? (
+              <img 
+                src={prUrl} 
+                alt="Curvas Precision-Recall"
+                className="max-w-full h-auto object-contain"
+                onError={() => setImgError(prev => ({...prev, pr: true}))}
+              />
+            ) : (
+              <div className="text-center p-8 text-slate-400">
+                <p>⚠️ Sube la imagen: <code>curvas_pr_optimizados.png</code></p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Feature Importance (SHAP) - Ocupa 2 columnas */}
+        <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2">
+          <div className="flex items-center space-x-3 mb-4">
+            <BrainCircuit className="text-purple-600" />
+            <h3 className="font-bold text-slate-800 text-lg">Explicabilidad del Modelo (SHAP Values)</h3>
+          </div>
+          <p className="text-slate-500 mb-6">
+            El gráfico "beeswarm" muestra cómo cada característica impacta la predicción. 
+            Los puntos a la <strong>derecha</strong> aumentan el riesgo de diabetes, a la <strong>izquierda</strong> lo disminuyen.
+          </p>
+          
+          <div className="bg-white rounded-lg overflow-hidden flex items-center justify-center min-h-[400px]">
+             {!imgError.shap ? (
+              <img 
+                src={shapUrl} 
+                alt="SHAP Beeswarm Plot"
+                className="max-w-full max-h-[600px] object-contain"
+                onError={() => setImgError(prev => ({...prev, shap: true}))}
+              />
+            ) : (
+              <div className="text-center p-12 bg-slate-50 w-full rounded-lg border border-dashed border-slate-300">
+                <p className="text-slate-500 font-medium">Visualización SHAP no encontrada</p>
+                <p className="text-sm text-slate-400 mt-2">Por favor sube el archivo <code>shap_beeswarm_rf.png</code> a la carpeta raíz.</p>
+                <div className="mt-6 text-left max-w-md mx-auto text-sm text-slate-600">
+                  <p className="font-bold mb-2">Hallazgos Clave (según tus datos):</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><strong>Edad:</strong> Principal factor de riesgo. Valores altos (rojo) aumentan drásticamente la probabilidad.</li>
+                    <li><strong>Región y Sexo:</strong> Tienen un impacto considerable en la predicción.</li>
+                    <li><strong>Sistólica y Cintura:</strong> Indicadores antropométricos críticos.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       </div>
 
-      {/* Confusion Matrix (Conceptual Visualization) */}
-      <section>
-        <h3 className="font-bold text-slate-800 mb-6">4.4 Matriz de Confusión (Random Forest)</h3>
-        <div className="grid grid-cols-2 gap-4 max-w-lg mx-auto">
-          <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-xl text-center">
-            <p className="text-emerald-800 font-bold text-2xl">TN</p>
-            <p className="text-sm text-emerald-600">Verdaderos Negativos</p>
-            <p className="text-3xl font-bold text-slate-800 mt-2">1,245</p>
-          </div>
-          <div className="bg-rose-50 border border-rose-200 p-6 rounded-xl text-center">
-            <p className="text-rose-800 font-bold text-2xl">FP</p>
-            <p className="text-sm text-rose-600">Falsos Positivos</p>
-            <p className="text-3xl font-bold text-slate-800 mt-2">120</p>
-          </div>
-          <div className="bg-rose-50 border border-rose-200 p-6 rounded-xl text-center">
-            <p className="text-rose-800 font-bold text-2xl">FN</p>
-            <p className="text-sm text-rose-600">Falsos Negativos</p>
-            <p className="text-3xl font-bold text-slate-800 mt-2">85</p>
-          </div>
-          <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-xl text-center">
-            <p className="text-emerald-800 font-bold text-2xl">TP</p>
-            <p className="text-sm text-emerald-600">Verdaderos Positivos</p>
-            <p className="text-3xl font-bold text-slate-800 mt-2">450</p>
+      <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="text-amber-600 mt-0.5 flex-shrink-0" size={20} />
+          <div>
+            <h4 className="font-bold text-amber-900 text-sm mb-1">Análisis de Resultados</h4>
+            <p className="text-amber-800 text-sm leading-relaxed">
+              Aunque el <strong>Random Forest</strong> es el modelo más robusto (mejor AUC), se observa una dificultad generalizada en todos los modelos para obtener un F1-score alto en la clase positiva (diabetes). Esto sugiere que, a pesar del balanceo con SMOTE, existe una complejidad inherente en separar las clases basándose únicamente en estas variables, lo cual es común en datos de encuestas poblacionales multifactoriales.
+            </p>
           </div>
         </div>
-      </section>
-
-      {/* Conclusion */}
-      <div className="bg-slate-800 text-white rounded-xl p-8 mt-12">
-        <h3 className="text-xl font-bold mb-4 flex items-center">
-          <CheckCircle2 className="mr-3 text-emerald-400" />
-          Conclusión del Modelo
-        </h3>
-        <p className="leading-relaxed opacity-90">
-          El modelo <strong>Random Forest</strong> demostró el mejor desempeño global con un AUC de 0.89. 
-          Las variables de <strong>Glucosa</strong> y <strong>Edad</strong> fueron los predictores más fuertes.
-          Este modelo es el candidato seleccionado para su implementación en herramientas de tamizaje clínico.
-        </p>
       </div>
     </div>
   );
