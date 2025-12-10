@@ -3,12 +3,20 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   Legend, AreaChart, Area, ComposedChart, Line, Cell
 } from 'recharts';
-import { Map, Info } from 'lucide-react';
+import { Map, Info, Activity, ZoomIn, Users, Cigarette } from 'lucide-react';
 
 const DescriptiveAnalysis: React.FC = () => {
-  // DATOS REALES EXTRAÍDOS DE LAS IMÁGENES PROPORCIONADAS
+  // Estados para controlar si las imágenes personalizadas cargaron correctamente
+  const [imgLoadError, setImgLoadError] = useState<{sexo: boolean, fumar: boolean}>({
+    sexo: false,
+    fumar: false
+  });
 
-  // 1. Prevalencia de diabetes por grupo de edad
+  const handleImgError = (key: 'sexo' | 'fumar') => {
+    setImgLoadError(prev => ({ ...prev, [key]: true }));
+  };
+
+  // DATOS REALES
   const agePrevalenceData = [
     { range: '60-69', value: 29.6, fill: '#5e548e' },
     { range: '70-79', value: 27.8, fill: '#5a7dcf' },
@@ -20,13 +28,11 @@ const DescriptiveAnalysis: React.FC = () => {
     { range: '20-29', value: 0.7, fill: '#2ec4b6' },
   ];
 
-  // 2. Prevalencia de diabetes por sexo
   const sexPrevalenceData = [
     { name: 'Mujer', value: 13.9, fill: '#4b86b4' },
     { name: 'Hombre', value: 10.8, fill: '#2ec4b6' },
   ];
 
-  // 3. Prevalencia de Factores de Riesgo (Agrupado)
   const riskFactorsData = [
     { factor: 'Tabaquismo', no: 13.2, si: 14.7 },
     { factor: 'Alcohol', no: 13.5, si: 7.5 },
@@ -34,7 +40,6 @@ const DescriptiveAnalysis: React.FC = () => {
     { factor: 'Depresión', no: 11.5, si: 21.4 },
   ];
 
-  // 4. Distribución de categorías de IMC
   const bmiCategoriesData = [
     { category: 'Bajo peso', value: 1.2 },
     { category: 'Normal', value: 21.1 },
@@ -44,17 +49,14 @@ const DescriptiveAnalysis: React.FC = () => {
     { category: 'Obesidad III', value: 4.9 },
   ];
 
-  // 5. Datos simulados para recrear las curvas de distribución (Histogramas)
   const waistData = Array.from({ length: 50 }, (_, i) => {
     const x = 60 + i * 2;
-    // Simulación de curva normal centrada en ~95
     const density = Math.exp(-Math.pow(x - 95, 2) / (2 * Math.pow(15, 2))); 
-    return { x, density: density * 500 }; // Escalar para visualización
+    return { x, density: density * 500 }; 
   });
 
   const bmiDistributionData = Array.from({ length: 50 }, (_, i) => {
     const x = 15 + i;
-    // Simulación de curva log-normal o skewed centrada en ~28
     const density = Math.exp(-Math.pow(x - 28, 2) / (2 * Math.pow(6, 2)));
     return { x, density: density * 300 };
   });
@@ -68,7 +70,7 @@ const DescriptiveAnalysis: React.FC = () => {
         </p>
       </header>
 
-      {/* SECCIÓN 1: MAPA INTERACTIVO */}
+      {/* SECCIÓN 1: MAPA */}
       <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
           <div className="flex items-center space-x-3">
@@ -77,36 +79,50 @@ const DescriptiveAnalysis: React.FC = () => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-800">Prevalencia por Entidad Federativa</h2>
-              <p className="text-sm text-slate-500">Mapa coroplético interactivo</p>
+              <p className="text-sm text-slate-500">Distribución geográfica del riesgo</p>
             </div>
           </div>
-          <span className="text-xs font-mono text-slate-400 bg-white px-2 py-1 rounded border border-slate-200">
-            src: /mapa_interactivo.html
-          </span>
         </div>
         
-        {/* Contenedor del Mapa */}
-        <div className="w-full h-[600px] bg-slate-100 relative group">
-          {/* Instrucciones visibles si no carga el iframe */}
-          <div className="absolute inset-0 flex items-center justify-center z-0">
-            <div className="text-center p-8 max-w-lg">
-              <Map size={64} className="mx-auto text-slate-300 mb-4" />
-              <h3 className="text-lg font-semibold text-slate-600">Visualizador de Mapa</h3>
-              <p className="text-slate-500 mt-2 text-sm">
-                Para ver tu mapa interactivo aquí, guarda tu archivo HTML generado (ej. Folium) como 
-                <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-700 mx-1">mapa_interactivo.html</code> 
-                en la carpeta <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-700 mx-1">public/</code> de tu proyecto.
-              </p>
+        <div className="p-8 flex justify-center bg-slate-100/50 min-h-[400px] items-center group">
+          <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-2 transition-transform hover:scale-[1.01] duration-300">
+            <img 
+              src="mapa_diabetes_por_entidad.png"
+              alt="Mapa de Prevalencia"
+              className="max-w-full h-auto max-h-[600px] object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.parentElement!.innerHTML = `<div class="text-center text-slate-400 p-8 flex flex-col items-center"><p class="mb-2">⚠️ Imagen no encontrada</p><p class="text-sm">Asegúrate de que <strong>mapa_diabetes_por_entidad.png</strong> esté en la carpeta raíz.</p></div>`;
+              }}
+            />
+             <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs text-slate-500 shadow-sm border border-slate-200 flex items-center">
+              <ZoomIn size={12} className="mr-1" /> Zoom disponible
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* IFRAME: Apunta al archivo estático en public/ */}
-          <iframe 
-            src="/mapa_interactivo.html" 
-            className="w-full h-full relative z-10 border-0"
-            title="Mapa Interactivo ENSANUT"
-            sandbox="allow-scripts allow-popups allow-same-origin"
-          />
+      {/* SECCIÓN 1.5: MATRIZ DE CORRELACIÓN */}
+      <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex items-center space-x-3 bg-slate-50">
+            <div className="p-2 bg-rose-100 text-rose-600 rounded-lg">
+              <Activity size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-800">Matriz de Correlación</h2>
+              <p className="text-sm text-slate-500">Relación entre variables numéricas</p>
+            </div>
+        </div>
+        <div className="p-8 flex justify-center bg-white min-h-[400px] items-center">
+            <img 
+              src="matriz_correlacion_elegante.png"
+              alt="Matriz de Correlación"
+              className="max-w-full max-h-[600px] rounded-lg shadow-md transition-transform hover:scale-[1.01] duration-300"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.parentElement!.innerHTML = `<div class="text-center text-slate-400 p-8"><p>Asegúrate de subir <strong>matriz_correlacion_elegante.png</strong>.</p></div>`;
+              }}
+            />
         </div>
       </section>
 
@@ -131,71 +147,94 @@ const DescriptiveAnalysis: React.FC = () => {
                   {agePrevalenceData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
-                  {/* Etiquetas encima de las barras */}
-                  {/* Nota: LabelList se podría agregar aquí si se desea */}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </section>
 
-        {/* Gráfico 2: Sexo */}
-        <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-          <h3 className="font-bold text-slate-800 mb-6 text-center">Prevalencia de diabetes por sexo</h3>
-          <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={sexPrevalenceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} barSize={100}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" tick={{fill: '#64748b', fontSize: 14}} />
-                <YAxis unit="%" domain={[0, 16]} tick={{fill: '#64748b', fontSize: 12}} />
-                <Tooltip 
-                  cursor={{fill: '#f8fafc'}}
-                  formatter={(value: number) => [`${value}%`, 'Prevalencia']}
-                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
-                />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                   {sexPrevalenceData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+        {/* Gráfico 2: Sexo (Híbrido: Imagen o Gráfico) */}
+        <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+          <div className="flex items-center justify-center space-x-2 mb-6">
+            <Users className="text-blue-500" size={20}/>
+            <h3 className="font-bold text-slate-800 text-center">Prevalencia por Sexo</h3>
+          </div>
+          
+          <div className="flex-1 flex items-center justify-center w-full min-h-[320px]">
+            {!imgLoadError.sexo ? (
+              <img 
+                src="sexo_elegante.png"
+                alt="Gráfico Sexo Elegante"
+                className="max-h-[300px] max-w-full object-contain rounded-lg"
+                onError={() => handleImgError('sexo')}
+              />
+            ) : (
+              // Fallback al gráfico interactivo si la imagen no existe
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={sexPrevalenceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }} barSize={100}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" tick={{fill: '#64748b', fontSize: 14}} />
+                  <YAxis unit="%" domain={[0, 16]} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip 
+                    cursor={{fill: '#f8fafc'}}
+                    formatter={(value: number) => [`${value}%`, 'Prevalencia']}
+                    contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
+                  />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                     {sexPrevalenceData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
       </div>
 
       {/* SECCIÓN 3: FACTORES DE RIESGO */}
       <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-        <h3 className="font-bold text-slate-800 mb-2 text-center text-lg">Prevalencia de Factores de Riesgo por Categoría</h3>
-        <p className="text-center text-slate-500 mb-8 text-sm">Comparación de prevalencia de diabetes según presencia (Sí) o ausencia (No) del factor</p>
+        <div className="flex items-center justify-center space-x-2 mb-2">
+           <Cigarette className="text-slate-400" size={20} />
+           <h3 className="font-bold text-slate-800 text-center text-lg">Factores de Riesgo</h3>
+        </div>
+        <p className="text-center text-slate-500 mb-8 text-sm">Comparativa de prevalencia</p>
         
-        <div className="h-96 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={riskFactorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="factor" tick={{fill: '#475569', fontSize: 13, fontWeight: 500}} />
-              <YAxis unit="%" tick={{fill: '#64748b'}} />
-              <Tooltip 
-                cursor={{fill: '#f8fafc'}}
-                contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
+        <div className="h-96 w-full flex items-center justify-center">
+           {!imgLoadError.fumar ? (
+              <img 
+                src="fumar_elegante.png"
+                alt="Gráfico Fumar Elegante"
+                className="max-h-full max-w-full object-contain rounded-lg shadow-sm"
+                onError={() => handleImgError('fumar')}
               />
-              <Legend verticalAlign="top" height={36}/>
-              <Bar dataKey="no" name="No" fill="#2ec4b6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="si" name="Sí" fill="#5a7dcf" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={riskFactorsData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="factor" tick={{fill: '#475569', fontSize: 13, fontWeight: 500}} />
+                  <YAxis unit="%" tick={{fill: '#64748b'}} />
+                  <Tooltip 
+                    cursor={{fill: '#f8fafc'}}
+                    contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
+                  />
+                  <Legend verticalAlign="top" height={36}/>
+                  <Bar dataKey="no" name="No" fill="#2ec4b6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="si" name="Sí" fill="#5a7dcf" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
         </div>
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100 flex items-start space-x-3">
           <Info className="text-blue-600 flex-shrink-0 mt-0.5" size={18} />
           <p className="text-sm text-blue-800">
-            <strong>Interpretación:</strong> Se observa una diferencia drástica en la prevalencia de diabetes en personas con hipertensión (31.3%) comparado con quienes no la padecen (7.9%), destacando la fuerte comorbilidad entre ambas condiciones.
+            <strong>Nota:</strong> Si tienes las imágenes <code>sexo_elegante.png</code> y <code>fumar_elegante.png</code>, aparecerán aquí. Si no, verás las gráficas interactivas automáticamente.
           </p>
         </div>
       </section>
 
       {/* SECCIÓN 4: DISTRIBUCIONES ANTROPOMÉTRICAS */}
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Gráfico 4: IMC Categorías */}
         <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 lg:col-span-2">
           <h3 className="font-bold text-slate-800 mb-6 text-center">Distribución de categorías de IMC</h3>
           <div className="h-72 w-full">
@@ -214,14 +253,8 @@ const DescriptiveAnalysis: React.FC = () => {
                 />
                 <Bar dataKey="value" fill="#3b82f6" radius={[6, 6, 0, 0]}>
                    {bmiCategoriesData.map((entry, index) => (
-                    // Gradiente de colores basado en severidad
                     <Cell key={`cell-${index}`} fill={[
-                      '#5e548e', // Bajo peso
-                      '#5a7dcf', // Normal
-                      '#3b82f6', // Sobrepeso
-                      '#2ec4b6', // Obesidad I
-                      '#2a9d8f', // Obesidad II
-                      '#2ec4b6'  // Obesidad III
+                      '#5e548e', '#5a7dcf', '#3b82f6', '#2ec4b6', '#2a9d8f', '#2ec4b6'
                     ][index]} />
                   ))}
                 </Bar>
@@ -230,7 +263,6 @@ const DescriptiveAnalysis: React.FC = () => {
           </div>
         </section>
 
-        {/* Gráfico 5: Distribución Cintura */}
         <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
           <h3 className="font-bold text-slate-800 mb-2 text-center">Distribución de Circunferencia de Cintura (cm)</h3>
           <div className="h-64 w-full">
@@ -252,7 +284,6 @@ const DescriptiveAnalysis: React.FC = () => {
           </div>
         </section>
 
-         {/* Gráfico 6: Distribución IMC */}
          <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
           <h3 className="font-bold text-slate-800 mb-2 text-center">Distribución de Índice de Masa Corporal (kg/m²)</h3>
           <div className="h-64 w-full">
