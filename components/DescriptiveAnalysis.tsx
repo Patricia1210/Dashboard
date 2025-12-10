@@ -16,6 +16,12 @@ const DescriptiveAnalysis: React.FC = () => {
     setImgLoadError(prev => ({ ...prev, [key]: true }));
   };
 
+  // --- SOLUCIÓN DE IMÁGENES ---
+  // Usamos "new URL" para importar las imágenes explícitamente.
+  // Esto le dice a Vite: "Oye, incluye estos archivos en la versión final de Netlify".
+  const mapaUrl = new URL('../mapa_diabetes_por_entidad.png', import.meta.url).href;
+  const matrizUrl = new URL('../matriz_correlacion_elegante.png', import.meta.url).href;
+
   // DATOS REALES
   const agePrevalenceData = [
     { range: '60-69', value: 29.6, fill: '#5e548e' },
@@ -87,12 +93,12 @@ const DescriptiveAnalysis: React.FC = () => {
         <div className="p-8 flex justify-center bg-slate-100/50 min-h-[400px] items-center group">
           <div className="relative rounded-xl overflow-hidden shadow-md bg-white p-2 transition-transform hover:scale-[1.01] duration-300">
             <img 
-              src="mapa_diabetes_por_entidad.png"
+              src={mapaUrl}
               alt="Mapa de Prevalencia"
               className="max-w-full h-auto max-h-[600px] object-contain"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = `<div class="text-center text-slate-400 p-8 flex flex-col items-center"><p class="mb-2">⚠️ Imagen no encontrada</p><p class="text-sm">Asegúrate de que <strong>mapa_diabetes_por_entidad.png</strong> esté en la carpeta raíz.</p></div>`;
+                e.currentTarget.parentElement!.innerHTML = `<div class="text-center text-slate-400 p-8 flex flex-col items-center"><p class="mb-2">⚠️ Imagen no encontrada</p><p class="text-sm">Vite no pudo procesar <strong>mapa_diabetes_por_entidad.png</strong>.</p></div>`;
               }}
             />
              <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs text-slate-500 shadow-sm border border-slate-200 flex items-center">
@@ -115,12 +121,12 @@ const DescriptiveAnalysis: React.FC = () => {
         </div>
         <div className="p-8 flex justify-center bg-white min-h-[400px] items-center">
             <img 
-              src="matriz_correlacion_elegante.png"
+              src={matrizUrl}
               alt="Matriz de Correlación"
               className="max-w-full max-h-[600px] rounded-lg shadow-md transition-transform hover:scale-[1.01] duration-300"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = `<div class="text-center text-slate-400 p-8"><p>Asegúrate de subir <strong>matriz_correlacion_elegante.png</strong>.</p></div>`;
+                e.currentTarget.parentElement!.innerHTML = `<div class="text-center text-slate-400 p-8"><p>Vite no pudo procesar <strong>matriz_correlacion_elegante.png</strong>.</p></div>`;
               }}
             />
         </div>
@@ -228,7 +234,7 @@ const DescriptiveAnalysis: React.FC = () => {
         <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100 flex items-start space-x-3">
           <Info className="text-blue-600 flex-shrink-0 mt-0.5" size={18} />
           <p className="text-sm text-blue-800">
-            <strong>Nota:</strong> Si tienes las imágenes <code>sexo_elegante.png</code> y <code>fumar_elegante.png</code>, aparecerán aquí. Si no, verás las gráficas interactivas automáticamente.
+            <strong>Nota:</strong> Si subiste los archivos <code>sexo_elegante.png</code> y <code>fumar_elegante.png</code>, aparecerán automáticamente. Si no, verás las gráficas interactivas.
           </p>
         </div>
       </section>
