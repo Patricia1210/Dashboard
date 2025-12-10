@@ -1,5 +1,5 @@
 export enum Section {
-  COVER = 'Portada',
+  COVER = 'Inicio',
   INTRODUCTION = 'Introducción',
   DATA_DICTIONARY = 'Diccionario de Datos',
   DESCRIPTIVE_ANALYSIS = 'Análisis Descriptivo',

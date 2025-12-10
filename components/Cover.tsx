@@ -1,5 +1,5 @@
 import React from 'react';
-import { GraduationCap, Activity, Users } from 'lucide-react';
+import { GraduationCap, Activity, Users, Mail } from 'lucide-react';
 
 const Cover: React.FC = () => {
   return (
@@ -10,7 +10,7 @@ const Cover: React.FC = () => {
           Proyecto de Tesis
         </span>
         <h1 className="text-4xl md:text-5xl font-bold text-slate-900 font-serif tracking-tight">
-          Portada
+          Inicio
         </h1>
         <p className="text-xl text-slate-500 font-light">
           Información del proyecto
@@ -47,15 +47,39 @@ const Cover: React.FC = () => {
             {/* Author Info */}
             <div className="space-y-6">
               <div className="flex flex-col items-center">
-                <div className="flex items-center space-x-2 text-slate-600 mb-2">
+                <div className="flex items-center space-x-2 text-slate-600 mb-6">
                   <Users size={20} className="text-blue-500" />
                   <span className="font-medium uppercase tracking-wide text-xs">Tesistas</span>
                 </div>
-                <p className="text-2xl font-bold text-blue-800">Patricia Herrejón Calderón</p>
-                <p className="text-2xl font-bold text-blue-800 mt-1">Luis Corona Alcantar</p>
+                
+                <div className="space-y-6 w-full max-w-md">
+                  {/* Autor 1 */}
+                  <div className="text-center group">
+                    <p className="text-2xl font-bold text-blue-800">Patricia Herrejón Calderón</p>
+                    <a 
+                      href="mailto:nutriherrejon@gmail.com" 
+                      className="inline-flex items-center space-x-2 text-slate-500 hover:text-blue-600 transition-colors mt-1 text-sm font-medium"
+                    >
+                      <Mail size={14} />
+                      <span>nutriherrejon@gmail.com</span>
+                    </a>
+                  </div>
+
+                  {/* Autor 2 */}
+                  <div className="text-center group">
+                    <p className="text-2xl font-bold text-blue-800">Luis Corona Alcantar</p>
+                    <a 
+                      href="mailto:lca1643@gmail.com" 
+                      className="inline-flex items-center space-x-2 text-slate-500 hover:text-blue-600 transition-colors mt-1 text-sm font-medium"
+                    >
+                      <Mail size={14} />
+                      <span>lca1643@gmail.com</span>
+                    </a>
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-4">
+              <div className="pt-8 mt-4 border-t border-slate-50">
                 <div className="flex items-center justify-center space-x-2 text-slate-600">
                   <GraduationCap size={18} />
                   <span className="font-medium">Maestría en Ciencia de Datos</span>

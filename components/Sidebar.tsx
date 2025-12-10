@@ -9,7 +9,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate }) => {
   const menuItems = [
-    { id: Section.COVER, icon: Home, label: 'Portada' },
+    { id: Section.COVER, icon: Home, label: 'Inicio' },
     { id: Section.INTRODUCTION, icon: FileText, label: 'Introducción' },
     { id: Section.DATA_DICTIONARY, icon: Database, label: 'Diccionario de Datos' },
     { id: Section.DESCRIPTIVE_ANALYSIS, icon: BarChart2, label: 'Análisis Descriptivo' },
