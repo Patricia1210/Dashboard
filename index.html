@@ -16,6 +16,46 @@
       .font-serif {
         font-family: 'Playfair Display', serif;
       }
+
+      /* Estilos para impresión (Exportar PDF) */
+      @media print {
+        @page {
+          margin: 1.5cm;
+          size: auto;
+        }
+        
+        body {
+          background-color: white !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        /* Ocultar sidebar y elementos de UI */
+        aside, .fixed, button, .no-print {
+          display: none !important;
+        }
+
+        /* Ajustar contenedor principal para que ocupe todo el ancho */
+        main {
+          width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          overflow: visible !important;
+          height: auto !important;
+          display: block !important;
+        }
+
+        /* Asegurar que las gráficas y textos no se corten */
+        div {
+          break-inside: avoid;
+        }
+        
+        /* Resetear scroll y alturas fijas */
+        .h-screen, .overflow-y-auto {
+          height: auto !important;
+          overflow: visible !important;
+        }
+      }
     </style>
   <script type="importmap">
 {

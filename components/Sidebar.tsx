@@ -19,6 +19,33 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate }) => {
 
   const currentIndex = menuItems.findIndex(item => item.id === activeSection) + 1;
 
+  // Función para imprimir (Exportar PDF)
+  const handleExportPDF = () => {
+    window.print();
+  };
+
+  // Función para compartir
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Dashboard Tesis - Predicción Diabetes T2',
+      text: 'Revisa este dashboard interactivo sobre predicción de diabetes mediante Machine Learning.',
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        // Usar API nativa (Móviles/Tablets)
+        await navigator.share(shareData);
+      } else {
+        // Fallback: Copiar al portapapeles
+        await navigator.clipboard.writeText(window.location.href);
+        alert('✅ ¡Enlace copiado al portapapeles!');
+      }
+    } catch (err) {
+      console.error('Error al compartir:', err);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
@@ -64,11 +91,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeSection, onNavigate }) => {
       {/* Footer Actions */}
       <div className="p-4 bg-slate-50 border-t border-slate-100">
         <div className="space-y-3">
-          <button className="w-full flex items-center justify-center space-x-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all active:scale-95">
+          <button 
+            onClick={handleExportPDF}
+            className="w-full flex items-center justify-center space-x-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all active:scale-95"
+          >
             <Download size={16} />
             <span>Exportar PDF</span>
           </button>
-          <button className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm shadow-blue-200 transition-all active:scale-95">
+          <button 
+            onClick={handleShare}
+            className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm shadow-blue-200 transition-all active:scale-95"
+          >
             <Share2 size={16} />
             <span>Compartir</span>
           </button>
